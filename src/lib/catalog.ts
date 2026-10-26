@@ -95,8 +95,9 @@ export function parseQuery(raw: RawParams): ShopQuery {
       : undefined,
     category,
     sort: sortOptions.some((s) => s.id === sort) ? (sort as SortKey) : "featured",
-    sizes: many(raw.size).filter((s) => (sizeOptions as readonly string[]).includes(s)),
-    colors: many(raw.color).filter((c) => colorOptions.some((o) => o.id === c)),
+    // Dedupe after allowlisting so repeated params can't grow past the option sets.
+    sizes: [...new Set(many(raw.size).filter((s) => (sizeOptions as readonly string[]).includes(s)))],
+    colors: [...new Set(many(raw.color).filter((c) => colorOptions.some((o) => o.id === c)))],
     price: priceRanges.some((r) => r.id === price) ? price : undefined,
     page: Number.isInteger(page) && page > 0 ? page : 1,
   };
